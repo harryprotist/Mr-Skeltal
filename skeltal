@@ -1,13 +1,28 @@
 #!/usr/bin/python3
 import os
+import re
 import sys
 import random
 
 # File Code
 
-def preproc(text):
+def preproc(text, name):
   # placeholder
-  return text
+  new_text = ""
+  for l in text.split("\n"):
+    # This bit doesn't work yet
+    # if re.match(r'^$$', l):
+    #   exec(l[1:]) 
+    #   next
+    inserts = l.split('$$')
+    new_line = ""
+    if len(inserts) % 2 == 1:
+      for i in range(len(inserts)):
+        new_line += inserts[i] if i % 2 == 0 else eval(inserts[i])
+    else:
+      new_line = l
+    new_text += new_line + "\n"
+  return new_text
 
 def read_skel(stype):
   skel_dir = os.environ.get('SKELTAL_DIR')   
@@ -25,7 +40,10 @@ def read_skel(stype):
 
 stdout = False
 def make_skel(stype, filename):
-  skel_contents = preproc(read_skel(stype))
+  if len(stype) == 0:
+    print("No specified filetype. " + spook())
+    exit(1)
+  skel_contents = preproc(read_skel(stype), ("STDOUT" if stdout else filename))
   if stdout:
     print(skel_contents)
     return
@@ -61,7 +79,7 @@ def get_option(args, option, default):
     return default
 
 if len(sys.argv) < 2:
-  print("Usage: [-t filetype] [--spooky] <--stdout|filename>")
+  print("Usage: [-t filetype] [--spooky] [--stdout] <filename>")
   exit(1)
 
 args = sys.argv

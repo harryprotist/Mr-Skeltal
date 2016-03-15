@@ -7,13 +7,17 @@ even do some preprocessing on the file.
 
 ## Usage
 
-`skeltal [-t type] [--spooky|-s] filename[.type]`
+`skeltal [-t type] [--spooky|-s] [--stdout] filename[.type]`
 
 The file extension `.type` will be used in the case that you didn't provide
-a `-t type` option. Use the spooky flag for spookier output.
+a `-t type` option. Use the spooky flag for spookier output. The `--stdout`
+flag prints the skeleton file instead of writing it.
 
 This command will look for a file named `type.skel` in your `$SKELTAL_DIR`,
 then copy it to `filename`.
+
+Skeltal will also `eval` strings inside of `$$`'s, or lines starting in
+`$$`. There's no way to escape them right now.
 
 ## Setup
 
