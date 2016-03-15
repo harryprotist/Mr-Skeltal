@@ -60,7 +60,9 @@ def make_skel(stype, filename):
 spooky = False
 def spook():
   if spooky:
-    return random.choice(["Doot.", "Thanks for the calcium.", "Doot Doot!"])
+    return random.choice([
+      "Doot.", "Thanks for the calcium.", "Doot Doot!", "Thanks Mr. Skeltal."
+    ])
   else:
     return ""
 
