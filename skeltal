@@ -1,26 +1,73 @@
 #!/usr/bin/python3
+import os
 import sys
+import random
+
+# File Code
 
 def preproc(text):
   # placeholder
   return text
-  
+
+def read_skel(stype):
+  skel_dir = os.environ.get('SKELTAL_DIR')   
+  if skel_dir == None:
+    print("You need to set your $SKELTAL_DIR. " + spook())
+    exit(1)
+  fp = os.path.join(skel_dir, stype + ".skel")
+  if not os.path.isfile(fp):
+    print(fp + " not found. " + spook())
+    exit(1)
+  contents = ""
+  with open(fp, 'r') as fh:
+    contents = fh.read()
+  return contents
+
+stdout = False
+def make_skel(stype, filename):
+  skel_contents = preproc(read_skel(stype))
+  if stdout:
+    print(skel_contents)
+    return
+  try:
+    with open(filename, 'w+') as fh:
+      fh.write(skel_contents)
+    print(filename + " created. " + spook())
+  except:
+    print(filename + " cannot be created")
+    exit(1)
+
 # Main code
 
+spooky = False
+def spook():
+  if spooky:
+    return random.choice(["Doot.", "Thanks for the calcium.", "Doot Doot!"])
+  else:
+    return ""
+
+def usage():
+  print("Usage: [-t filetype] [--spooky] <filename>")
+
 def get_option(args, option, default):
-  try:
-    i = args.index(option)
-    return args[i + 1]
-  except:
+  if option in args:
+    try:
+      i = args.index(option)
+      return args[i + 1]
+    except:
+      usage()
+      exit(1)
+  else:
     return default
 
 if len(sys.argv) < 2:
-  print("Usage: [-t filetype] [--spooky] <filename>")
-  exit()
+  print("Usage: [-t filetype] [--spooky] <--stdout|filename>")
+  exit(1)
 
-filename = sys.argv[-1]
-args = sys.argv[:-1]
-spooky = "-s" in sys.argv or "--spooky" in sys.argv
-typeof = get_option(sys.argv, "-t", filename.split(".")[-1])
+args = sys.argv
+stdout = "--stdout" in args
+filename = "" if stdout else args.pop()
+spooky = "-s" in args or "--spooky" in args
+stype = get_option(args, "-t", filename.split(".")[-1])
 
-print(filename, spooky, typeof)
+make_skel(stype, filename)
