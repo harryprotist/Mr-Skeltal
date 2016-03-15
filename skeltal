@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+import sys
+
+def preproc(text):
+  # placeholder
+  return text
+  
+# Main code
+
+def get_option(args, option, default):
+  try:
+    i = args.index(option)
+    return args[i + 1]
+  except:
+    return default
+
+if len(sys.argv) < 2:
+  print("Usage: [-t filetype] [--spooky] <filename>")
+  exit()
+
+filename = sys.argv[-1]
+args = sys.argv[:-1]
+spooky = "-s" in sys.argv or "--spooky" in sys.argv
+typeof = get_option(sys.argv, "-t", filename.split(".")[-1])
+
+print(filename, spooky, typeof)
