@@ -3,26 +3,34 @@ import os
 import re
 import sys
 import random
+from io import StringIO
 
 # File Code
 
 def preproc(text, name):
-  # placeholder
-  new_text = ""
+  # Based off of http://lua-users.org/wiki/SimpleLuaPreprocessor
+  commands = []
   for l in text.split("\n"):
-    # This bit doesn't work yet
-    # if re.match(r'^$$', l):
-    #   exec(l[1:]) 
-    #   next
-    inserts = l.split('$$')
-    new_line = ""
-    if len(inserts) % 2 == 1:
-      for i in range(len(inserts)):
-        new_line += inserts[i] if i % 2 == 0 else eval(inserts[i])
+    if re.match(r'^\$\$ ', l):
+      commands += [l[3:]]
     else:
-      new_line = l
-    new_text += new_line + "\n"
-  return new_text
+      if not re.search(r'(.+?)\$\$(.+?)\$\$(.+?)', l):
+        commands += ['print("""' + l + '""")']
+      else:
+        expr = re.compile(r'(.+?)\$\$(.+?)\$\$')
+        end = 1
+        for m in expr.finditer(l):
+          # add: escape the literal strings
+          commands += ['sys.stdout.write("""' + m.group(1) + '""")']
+          commands += ['sys.stdout.write(str(' + m.group(2) + '))']
+          end = m.end(0)
+        commands += ['print("""' + l[end:] + '""", )']
+  # http://stackoverflow.com/questions/3906232/
+  old_stdout = sys.stdout
+  exec_out = sys.stdout = StringIO() 
+  exec("\n".join(commands), {"name":name,"sys":sys,"os":os})
+  sys.stdout = old_stdout
+  return exec_out.getvalue()
 
 def read_skel(stype):
   skel_dir = os.environ.get('SKELTAL_DIR')   
